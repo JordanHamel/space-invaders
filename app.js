@@ -85,6 +85,8 @@ var Game = function(ctx) {
   that.intervalID = undefined;
   that.bullet = undefined;
   that.invaders = [];
+  that.step_counter = 0
+  that.invaderBullets = [];
 
   key('left', function() {
     that.spaceship.pos.x -= that.STEP_SIZE;
@@ -108,6 +110,12 @@ var Game = function(ctx) {
         that.bullet = undefined;
       };
     };
+    for (var j = 0; j < that.invaderBullets.length; j++) {
+      that.invaderBullets[j].update();
+      if (that.invaderBullets[j].pos.y > 500 + that.invaderBullets[j].HEIGHT) {
+        that.invaderBullets.splice(j, 1);
+      };
+    };
     // update each invader
     for (var i = 0; i < that.invaders.length; i++) {
       that.invaders[i].update();
@@ -118,6 +126,9 @@ var Game = function(ctx) {
     if (that.bullet) {
       that.bullet.draw();
     };
+    for (var j = 0; j < that.invaderBullets.length; j++) {
+      that.invaderBullets[j].draw();
+    };
     that.spaceship.draw();
     // draw each invader
     for (var i = 0; i < that.invaders.length; i++) {
@@ -126,12 +137,18 @@ var Game = function(ctx) {
   };
 
   that.step = function() {
+    if (that.step_counter % 35 == 0) {
+      var randomInvaderIndex = Math.floor(Math.random() * (that.invaders.length - 1));
+      that.invaderFireBullet(that.invaders[randomInvaderIndex]);
+    };
     ctx.clearRect(0, 0, that.CANVAS_SIZE, that.CANVAS_SIZE);
     that.update();
     if (that.bullet) {
       that.bulletHit();
     };
     that.draw();
+    that.step_counter++;
+
 
     // check game, if game over, clear interval
   };
@@ -141,6 +158,10 @@ var Game = function(ctx) {
       that.bullet = new Bullet((that.spaceship.pos.x + that.spaceship.SIZE/2 - 2.5), that.spaceship.pos.y, true, that);
     };
   };
+
+  that.invaderFireBullet = function (invader) {
+    that.invaderBullets.push(new Bullet((invader.pos.x + invader.SIZE/2 - 2.5), invader.pos.y + invader.SIZE, false, that));
+  }
 
   that.createInvaders = function(n) {
     for (var i = 0; i < n; i++) {

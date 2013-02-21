@@ -1,17 +1,18 @@
 var Spaceship = function(pos_x, game) {
 
   var that = this;
-  that.size = 30;
   that.game = game;
+
+  that.SIZE = 30;
 
   that.pos = {
     x: pos_x,
-    y: that.game.CANVAS_SIZE - that.size
+    y: that.game.CANVAS_SIZE - that.SIZE
   };
 
   that.draw = function () {
-    that.game.ctx.fillStyle = "F00";
-    that.game.ctx.fillRect(that.pos.x, that.pos.y, that.size, that.size);
+    that.game.ctx.fillStyle = "800080";
+    that.game.ctx.fillRect(that.pos.x, that.pos.y, that.SIZE, that.SIZE);
   }
 }
 
@@ -39,21 +40,35 @@ var Bullet = function(x_pos, y_pos, direction, game) {
   };
 
   that.draw = function() {
-    that.game.ctx.fillStyle = "F00";
+    that.game.ctx.fillStyle = "CA226B";
     that.game.ctx.fillRect(that.pos.x, that.pos.y, that.WIDTH, that.HEIGHT);
   };
 }
 
-var Invader = function(x_pos, y_pos) {
+var Invader = function(x_pos, y_pos, ctx) {
 
   var that = this;
-  this.direction = true;
+  that.direction = true;
+  that.ctx = ctx;
 
-  that.VELOCITY = 7;
+  that.VELOCITY = 5;
+  that.SIZE = 30;
 
   that.pos = {
     x: x_pos,
     y: y_pos
+  }
+
+  that.update = function() {
+    that.pos.x += that.VELOCITY;
+    if (that.pos.x > 500) {
+      that.pos.x = 0 - that.SIZE;
+    };
+  }
+
+  that.draw = function() {
+    that.ctx.fillStyle = "0F0";
+    that.ctx.fillRect(that.pos.x, that.pos.y, that.SIZE, that.SIZE);
   }
 }
 
@@ -69,6 +84,7 @@ var Game = function(ctx) {
   that.spaceship = new Spaceship(20, that);
   that.intervalID = undefined;
   that.bullet = undefined;
+  that.invaders = [];
 
   key('left', function() {
     that.spaceship.pos.x -= that.STEP_SIZE;
@@ -81,6 +97,7 @@ var Game = function(ctx) {
   });
 
   that.play = function() {
+    that.createInvaders(1);
     that.intervalID = setInterval(that.step, that.INTERVAL_SIZE);
   };
 
@@ -91,6 +108,10 @@ var Game = function(ctx) {
         that.bullet = undefined;
       };
     };
+    // update each invader
+    for (var i = 0; i < that.invaders.length; i++) {
+      that.invaders[i].update();
+    };
   };
 
   that.draw = function() {
@@ -98,11 +119,18 @@ var Game = function(ctx) {
       that.bullet.draw();
     };
     that.spaceship.draw();
+    // draw each invader
+    for (var i = 0; i < that.invaders.length; i++) {
+      that.invaders[i].draw();
+    };
   };
 
   that.step = function() {
     ctx.clearRect(0, 0, that.CANVAS_SIZE, that.CANVAS_SIZE);
     that.update();
+    if (that.bullet) {
+      that.bulletHit();
+    };
     that.draw();
 
     // check game, if game over, clear interval
@@ -110,10 +138,34 @@ var Game = function(ctx) {
 
   that.fireBullet = function() {
     if (that.bullet == undefined) {
-      that.bullet = new Bullet((that.spaceship.pos.x + that.spaceship.size/2 - 2.5), that.spaceship.pos.y, true, that);
+      that.bullet = new Bullet((that.spaceship.pos.x + that.spaceship.SIZE/2 - 2.5), that.spaceship.pos.y, true, that);
     };
   };
+
+  that.createInvaders = function(n) {
+    for (var i = 0; i < n; i++) {
+      for (var y = 280; y > 79; y -= 45) {
+        for (var x = 50; x < 480; x+= 45) {
+          that.invaders.push(new Invader(x, y, that.ctx));
+        }
+      }
+    };
+  };
+
+  that.bulletHit = function() {
+    for (var i = 0; i < that.invaders.length; i++) {
+      if (that.bullet.pos.x < that.invaders[i].pos.x + that.invaders[i].SIZE &&
+        that.bullet.pos.x + that.bullet.WIDTH > that.invaders[i].pos.x &&
+        that.bullet.pos.y < that.invaders[i].pos.y + that.invaders[i].SIZE &&
+        that.bullet.pos.y + that.bullet.HEIGHT > that.invaders[i].pos.y) {
+        that.invaders.splice(i, 1);
+        that.bullet = undefined;
+        return true;
+      }
+    };
+  }
 
   //script
   that.play();
 }
+

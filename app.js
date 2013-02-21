@@ -87,6 +87,8 @@ var Game = function(ctx) {
   that.invaders = [];
   that.step_counter = 0
   that.invaderBullets = [];
+  that.lives = 3;
+
 
   key('left', function() {
     that.spaceship.pos.x -= that.STEP_SIZE;
@@ -137,7 +139,8 @@ var Game = function(ctx) {
   };
 
   that.step = function() {
-    if (that.step_counter % 35 == 0) {
+    $('#life-counter').text("LIVES: " + that.lives);
+    if (that.step_counter % 20 == 0) {
       var randomInvaderIndex = Math.floor(Math.random() * (that.invaders.length - 1));
       that.invaderFireBullet(that.invaders[randomInvaderIndex]);
     };
@@ -145,6 +148,15 @@ var Game = function(ctx) {
     that.update();
     if (that.bullet) {
       that.bulletHit();
+    };
+
+    if (that.spaceshipHit()) {
+      that.lives -= 1;
+      if (that.lives == 0) {
+        $('#life-counter').text("LIVES: " + that.lives);
+        alert("You lose!");
+        clearInterval(that.intervalID);
+      };
     };
     that.draw();
     that.step_counter++;
@@ -161,15 +173,15 @@ var Game = function(ctx) {
 
   that.invaderFireBullet = function (invader) {
     that.invaderBullets.push(new Bullet((invader.pos.x + invader.SIZE/2 - 2.5), invader.pos.y + invader.SIZE, false, that));
-  }
+  };
 
   that.createInvaders = function(n) {
     for (var i = 0; i < n; i++) {
       for (var y = 280; y > 79; y -= 45) {
         for (var x = 50; x < 480; x+= 45) {
           that.invaders.push(new Invader(x, y, that.ctx));
-        }
-      }
+        };
+      };
     };
   };
 
@@ -182,8 +194,20 @@ var Game = function(ctx) {
         that.invaders.splice(i, 1);
         that.bullet = undefined;
         return true;
-      }
+      };
     };
+  };
+
+  that.spaceshipHit = function() {
+    for (var i = 0; i < that.invaderBullets.length; i++) {
+      if (that.spaceship.pos.x < that.invaderBullets[i].pos.x + that.invaderBullets[i].WIDTH &&
+          that.spaceship.pos.x + that.spaceship.SIZE > that.invaderBullets[i].pos.x &&
+          that.spaceship.pos.y < that.invaderBullets[i].pos.y + that.invaderBullets[i].HEIGHT &&
+          that.spaceship.pos.y + that.spaceship.SIZE > that.invaderBullets[i].pos.y) {
+        that.invaderBullets.splice(i, 1);
+        return true;
+      }
+    }
   }
 
   //script

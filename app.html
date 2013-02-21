@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <script type="text/javascript" src="jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="app.js"> </script>
+    <!--<script type="text/javascript" src="keymaster.js"></script>-->
+    <style>
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>DON'T INVADE MY SPACE!!!</h1>
+
+    <canvas width="500" height="500"></canvas>
+  </body>
+
+  <script>
+    $(function() {
+      var canvas = $("canvas").get(0);
+      ctx = canvas.getContext("2d");
+      game = new Game(ctx);
+    });
+  </script>
+</html>

@@ -164,12 +164,27 @@ var Game = function(ctx) {
         alert("You lose!");
         clearInterval(that.intervalID);
       };
+    } else if(that.gameOver()) {
+      that.lives = 0;
+      $('#life-counter').text("LIVES: " + that.lives);
+      alert("You lose!");
+      clearInterval(that.intervalID);
     };
+
     that.draw();
     that.step_counter++;
 
 
     // check game, if game over, clear interval
+  };
+
+
+  that.gameOver = function() {
+    for(var i=0; i<that.invaders.length; i++) {
+      if(that.invaders[i].pos.y > (that.CANVAS_SIZE - that.invaders[i].SIZE - that.spaceship.SIZE)) {
+        return true;
+      };
+    };
   };
 
   that.fireBullet = function() {

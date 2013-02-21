@@ -144,6 +144,13 @@ var Game = function(ctx) {
       var randomInvaderIndex = Math.floor(Math.random() * (that.invaders.length - 1));
       that.invaderFireBullet(that.invaders[randomInvaderIndex]);
     };
+
+    if (that.step_counter % 400 == 0 && that.step_counter != 0) {
+        console.log("Dropping");
+      for (var i = 0; i < that.invaders.length; i++) {
+        that.invaders[i].pos.y = that.invaders[i].pos.y + 45;
+      };
+    };
     ctx.clearRect(0, 0, that.CANVAS_SIZE, that.CANVAS_SIZE);
     that.update();
     if (that.bullet) {
@@ -177,7 +184,7 @@ var Game = function(ctx) {
 
   that.createInvaders = function(n) {
     for (var i = 0; i < n; i++) {
-      for (var y = 280; y > 79; y -= 45) {
+      for (var y = 230; y > 29; y -= 45) {
         for (var x = 50; x < 480; x+= 45) {
           that.invaders.push(new Invader(x, y, that.ctx));
         };

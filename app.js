@@ -40,7 +40,7 @@ var Bullet = function(x_pos, y_pos, direction, game) {
   };
 
   that.draw = function() {
-    that.game.ctx.fillStyle = "CA226B";
+    that.game.ctx.fillStyle = "CC0066";
     that.game.ctx.fillRect(that.pos.x, that.pos.y, that.WIDTH, that.HEIGHT);
   };
 }

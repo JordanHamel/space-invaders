@@ -42,7 +42,19 @@ var Bullet = function(x_pos, y_pos, direction, game) {
     that.game.ctx.fillStyle = "F00";
     that.game.ctx.fillRect(that.pos.x, that.pos.y, that.WIDTH, that.HEIGHT);
   };
+}
 
+var Invader = function(x_pos, y_pos) {
+
+  var that = this;
+  this.direction = true;
+
+  that.VELOCITY = 7;
+
+  that.pos = {
+    x: x_pos,
+    y: y_pos
+  }
 }
 
 var Game = function(ctx) {
@@ -92,7 +104,6 @@ var Game = function(ctx) {
     ctx.clearRect(0, 0, that.CANVAS_SIZE, that.CANVAS_SIZE);
     that.update();
     that.draw();
-
 
     // check game, if game over, clear interval
   };

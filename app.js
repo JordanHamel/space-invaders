@@ -1,3 +1,5 @@
+// Spaceship
+
 var Spaceship = function(pos_x, game) {
 
   var that = this;
@@ -15,6 +17,8 @@ var Spaceship = function(pos_x, game) {
     that.game.ctx.fillRect(that.pos.x, that.pos.y, that.SIZE, that.SIZE);
   }
 }
+
+// Bullet
 
 var Bullet = function(x_pos, y_pos, direction, game) {
 
@@ -45,6 +49,8 @@ var Bullet = function(x_pos, y_pos, direction, game) {
   };
 }
 
+// Invader
+
 var Invader = function(x_pos, y_pos, ctx) {
 
   var that = this;
@@ -72,6 +78,8 @@ var Invader = function(x_pos, y_pos, ctx) {
   }
 }
 
+// Game
+
 var Game = function(ctx) {
 
   var that = this;
@@ -81,15 +89,17 @@ var Game = function(ctx) {
   that.STEP_SIZE = 5;
   that.INTERVAL_SIZE = 1000/16;
 
+  //create spaceship all the way up here
   that.spaceship = new Spaceship(20, that);
   that.intervalID = undefined;
   that.bullet = undefined;
   that.invaders = [];
+  //for measuring when to drop invaders/drop random bullets
   that.step_counter = 0
   that.invaderBullets = [];
   that.lives = 3;
 
-
+  
   key('left', function() {
     that.spaceship.pos.x -= that.STEP_SIZE;
   });
@@ -105,58 +115,72 @@ var Game = function(ctx) {
     that.intervalID = setInterval(that.step, that.INTERVAL_SIZE);
   };
 
+  //updates everyone's positions based on set velocity
   that.update = function() {
+    //spaceship bullets
     if (that.bullet) {
       that.bullet.update();
       if (that.bullet.pos.y < (0 - that.bullet.HEIGHT) ) {
         that.bullet = undefined;
       };
     };
+    //invader bullets
     for (var j = 0; j < that.invaderBullets.length; j++) {
       that.invaderBullets[j].update();
       if (that.invaderBullets[j].pos.y > 500 + that.invaderBullets[j].HEIGHT) {
         that.invaderBullets.splice(j, 1);
       };
     };
-    // update each invader
+    //each invader
     for (var i = 0; i < that.invaders.length; i++) {
       that.invaders[i].update();
     };
   };
 
+  //draws everything that has a velocity
   that.draw = function() {
+    //spaceship bullets
     if (that.bullet) {
       that.bullet.draw();
     };
+    //invader bullets
     for (var j = 0; j < that.invaderBullets.length; j++) {
       that.invaderBullets[j].draw();
     };
     that.spaceship.draw();
-    // draw each invader
+    //each invader
     for (var i = 0; i < that.invaders.length; i++) {
       that.invaders[i].draw();
     };
   };
 
+  //'game loop'
   that.step = function() {
+    //prints current lives
     $('#life-counter').text("LIVES: " + that.lives);
+    
+    //drops random bullets
     if (that.step_counter % 20 == 0) {
       var randomInvaderIndex = Math.floor(Math.random() * (that.invaders.length - 1));
       that.invaderFireBullet(that.invaders[randomInvaderIndex]);
     };
 
+    //drops invaders closer to spaceship
     if (that.step_counter % 400 == 0 && that.step_counter != 0) {
-        console.log("Dropping");
       for (var i = 0; i < that.invaders.length; i++) {
         that.invaders[i].pos.y = that.invaders[i].pos.y + 45;
       };
     };
+    
     ctx.clearRect(0, 0, that.CANVAS_SIZE, that.CANVAS_SIZE);
     that.update();
+    
+    //did bullets hit anything?
     if (that.bullet) {
       that.bulletHit();
     };
 
+    //has spaceship been hit?
     if (that.spaceshipHit()) {
       that.lives -= 1;
       if (that.lives == 0) {
@@ -173,9 +197,6 @@ var Game = function(ctx) {
 
     that.draw();
     that.step_counter++;
-
-
-    // check game, if game over, clear interval
   };
 
 
@@ -187,16 +208,19 @@ var Game = function(ctx) {
     };
   };
 
+  //spaceship fires bullet
   that.fireBullet = function() {
     if (that.bullet == undefined) {
       that.bullet = new Bullet((that.spaceship.pos.x + that.spaceship.SIZE/2 - 2.5), that.spaceship.pos.y, true, that);
     };
   };
 
+  //invader fires bullet
   that.invaderFireBullet = function (invader) {
     that.invaderBullets.push(new Bullet((invader.pos.x + invader.SIZE/2 - 2.5), invader.pos.y + invader.SIZE, false, that));
   };
 
+  //create lots of invaders
   that.createInvaders = function(n) {
     for (var i = 0; i < n; i++) {
       for (var y = 230; y > 29; y -= 45) {
@@ -207,6 +231,7 @@ var Game = function(ctx) {
     };
   };
 
+  //did a bullet hit an invader?
   that.bulletHit = function() {
     for (var i = 0; i < that.invaders.length; i++) {
       if (that.bullet.pos.x < that.invaders[i].pos.x + that.invaders[i].SIZE &&
@@ -220,6 +245,7 @@ var Game = function(ctx) {
     };
   };
 
+  //did a bullet hit the spaceship?
   that.spaceshipHit = function() {
     for (var i = 0; i < that.invaderBullets.length; i++) {
       if (that.spaceship.pos.x < that.invaderBullets[i].pos.x + that.invaderBullets[i].WIDTH &&
